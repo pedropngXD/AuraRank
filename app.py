@@ -32,17 +32,17 @@ VIDEOS_RANK = {
 #  DADOS FALSOS (MOCK) - Para testar sem banco
 # ==============================================================================
 MOCK_PERFIL = {
-    "nome": "USUÁRIO TESTE DEV",
-    "total": 65,  # Mude aqui para testar diferentes vídeos (ex: 10, 90, 300)
-    "meta": 90
+    "nome": "Vitor supremo",
+    "total": 999999990,  # Mude aqui para testar diferentes vídeos (ex: 10, 90, 300)
+    "meta": 350
 }
 
 MOCK_LEADERBOARD = [
-    {"nome": "JOÃO SILVA", "pontos": 150},
+    {"nome": "Vitor supremo", "pontos": 929300},
     {"nome": "MARIA DEV", "pontos": 120},
     {"nome": "PEDRO MOSER", "pontos": 65},
     {"nome": "TESTE 4", "pontos": 40},
-    {"nome": "TESTE 5", "pontos": 10}
+    {"nome": "adrian humilde", "pontos": -200}
 ]
 
 # ==============================================================================
