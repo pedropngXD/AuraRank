@@ -1,25 +1,85 @@
-/* style.css - ARQUIVO LIMPO */
+/* --- CONFIGURAÇÃO DE TEMAS --- */
 
+/* 1. TEMA CLARO (CORPORATIVO) */
+:root {
+    --bg-page: #F3F4F6;
+    --bg-card: #FFFFFF;
+    --border-color: #D1D5DB;
+    --text-main: #1F2937;
+    --accent-color: #2563EB; /* Azul */
+    --font-stack: ui-sans-serif, system-ui, sans-serif;
+    --gold: #D97706;
+}
+
+/* 2. TEMA AURA (GAMER/ESCURO) */
+body.theme-aura {
+    --bg-page: #050505;
+    --bg-card: #100505;
+    --border-color: #4B1919;
+    --text-main: #E6EDF3;
+    --accent-color: #FF0000; /* Vermelho */
+    --font-stack: 'Metal Mania', cursive;
+    --gold: #FFD700;
+}
+
+/* --- ESTILOS GERAIS --- */
 body {
-    background-color: #050505; /* Garante fundo preto antes de carregar o resto */
+    background-color: var(--bg-page);
+    color: var(--text-main);
+    font-family: var(--font-stack);
     margin: 0;
-    overflow: hidden; /* Evita barra de rolagem dupla */
+    overflow: hidden;
+    transition: background-color 0.5s, color 0.5s;
 }
 
-/* ESSENCIAL: Garante que o Javascript consiga mostrar os Overlays */
-.active {
-    display: flex !important;
-}
+.active { display: flex !important; }
 
-/* Scrollbar Personalizada para combinar com o tema */
+/* Scrollbar Personalizada */
 .custom-scrollbar::-webkit-scrollbar { width: 8px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: #100505; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #4B1919; border-radius: 4px; }
-.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #FF0000; }
+.custom-scrollbar::-webkit-scrollbar-track { background: var(--bg-page); }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
 
-/* Animação suave de entrada */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+/* Animações */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+
+/* Remover Setas do Input Number */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
+
+/* ==========================================================================
+   LÓGICA DE EXIBIÇÃO POR TEMA
+   ========================================================================== */
+
+/* 1. IMAGENS DO RANK */
+/* Tema Claro: Imagens somem */
+.rank-img-display {
+    display: none;
+}
+/* Tema Aura: Imagens aparecem */
+body.theme-aura .rank-img-display {
+    display: block;
+}
+
+/* 2. TEXTO DINÂMICO (Label) */
+/* Tema Claro: Escreve "Chamados" */
+.points-label::after {
+    content: " Chamados"; 
+    font-size: 0.7em;
+    opacity: 0.8;
+    text-transform: uppercase;
+}
+/* Tema Aura: Escreve "Aura Points" */
+body.theme-aura .points-label::after {
+    content: " Aura Points";
+}
+
+/* ... Mantenha o CSS anterior e adicione isso ao final ... */
+
+/* AJUSTE: Botões das Abas (Perfil, Ranking, Histórico) */
+/* No tema Aura, força a borda a ser Vermelha (accent-color) */
+body.theme-aura .tab-btn {
+    border-color: var(--accent-color) !important;
+}

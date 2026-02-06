@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AuraRanking System</title>
-    
     <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap" rel="stylesheet">
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -14,108 +12,91 @@
             extend: {
               colors: {
                 metal: {
-                  black: '#050505',
-                  dark: '#100505',
-                  card: '#291313',
-                  border: '#4B1919',
-                  red: '#FF0000',
-                  gold: '#FFD700',
-                  text: '#E6EDF3'
+                  black: 'var(--bg-page)', dark: 'var(--bg-card)', card: 'var(--bg-card)',
+                  border: 'var(--border-color)', red: 'var(--accent-color)', gold: 'var(--gold)', text: 'var(--text-main)'
                 }
               },
-              fontFamily: {
-                'metal': ['"Metal Mania"', 'cursive'],
-              }
+              fontFamily: { 'metal': ['var(--font-stack)'] }
             }
           }
         }
     </script>
-
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 
-<body class="bg-metal-black text-metal-text font-metal h-screen flex flex-col selection:bg-metal-red selection:text-white">
+<body class="bg-metal-black text-metal-text font-metal h-screen flex flex-col selection:bg-metal-red selection:text-white transition-colors duration-500">
 
-    <div id="login-overlay" class="fixed inset-0 bg-black z-50 flex items-center justify-center hidden">
-        <div class="bg-metal-card border-2 border-metal-border p-10 rounded-2xl shadow-2xl text-center max-w-md w-full mx-4">
-            <h2 class="text-4xl text-metal-red mb-8 tracking-widest">LOGIN AURA 💀</h2>
-            <input type="text" 
-       id="user-id-input" 
-       inputmode="numeric" 
-       pattern="[0-9]*"
-       oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-       onkeydown="if(event.key === 'Enter') fazerLogin()"
-       class="w-full bg-metal-dark text-white border-2 border-metal-border p-4 text-center text-2xl rounded-xl mb-8 focus:outline-none focus:border-metal-red placeholder-gray-600 transition-colors"
-       placeholder="DIGITE SEU ID">
+    <div id="login-overlay" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center hidden backdrop-blur-sm">
+        <div class="bg-metal-card border-2 border-metal-border p-10 rounded-2xl shadow-2xl text-center max-w-md w-full mx-4 transition-all duration-500">
+            <h2 class="text-4xl text-metal-red mb-8 tracking-widest font-bold">LOGIN</h2>
+            <input type="text" id="user-id-input" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" onkeydown="if(event.key === 'Enter') fazerLogin()" class="w-full bg-metal-black text-metal-text border-2 border-metal-border p-4 text-center text-2xl rounded-xl mb-8 focus:outline-none focus:border-metal-red placeholder-gray-500 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="DIGITE SEU CÓDIGO">
+            
             <button onclick="fazerLogin()" 
-                    class="w-full bg-metal-border hover:bg-metal-red text-white text-2xl py-3 rounded-xl transition-all duration-300 font-bold tracking-wider hover:shadow-[0_0_15px_rgba(255,0,0,0.5)]">
+                    class="w-full bg-metal-dark border border-metal-border text-metal-text hover:text-white hover:bg-metal-red text-2xl py-3 rounded-xl transition-all duration-300 font-bold tracking-widest shadow-lg uppercase focus:outline-none">
                 ENTRAR
             </button>
         </div>
     </div>
 
     <div id="video-overlay" class="fixed inset-0 bg-black z-[60] hidden items-center justify-center cursor-pointer" onclick="fecharVideo()">
-        <video id="player" class="w-full h-full object-cover">
-            <source src="" type="video/mp4">
-        </video>
+        <video id="player" class="w-full h-full object-cover"><source src="" type="video/mp4"></video>
     </div>
 
-    <div class="absolute top-4 right-4 z-40">
-        <button onclick="fazerLogout()" 
-                class="bg-metal-dark border border-metal-border text-gray-500 hover:text-metal-red hover:border-metal-red text-xs md:text-sm px-3 py-2 rounded transition-colors uppercase tracking-widest shadow-lg">
-            SAIR 🚪
-        </button>
+    <div class="absolute top-4 right-4 z-40 flex gap-3">
+        <button onclick="alternarTema()" class="bg-metal-dark border border-metal-border text-metal-text hover:text-white hover:bg-metal-red hover:border-metal-red px-3 py-2 rounded shadow-lg transition-colors text-xl focus:outline-none" title="Mudar Tema">🎨</button>
+        <button onclick="fazerLogout()" class="bg-metal-dark border border-metal-border text-metal-text hover:text-white hover:bg-metal-red hover:border-metal-red text-xs md:text-sm px-3 py-2 rounded transition-colors uppercase tracking-widest shadow-lg font-bold focus:outline-none">SAIR 🚪</button>
     </div>
 
     <div class="container mx-auto h-full p-4 flex flex-col" id="main-interface" style="display: none;">
+    
+    <div class="flex justify-center gap-2 md:gap-6 mt-4 mb-4 z-30 shrink-0">
+        <button id="btn-perfil" onclick="showTab('perfil', event)" 
+                class="tab-btn bg-metal-red text-white border-2 border-metal-border px-6 py-3 rounded-lg text-lg md:text-xl transition-all font-bold uppercase tracking-widest shadow-lg focus:outline-none">
+            PERFIL
+        </button>
         
-        <div class="flex justify-center gap-2 md:gap-6 mt-4 mb-4 z-30 shrink-0">
-            <button id="btn-perfil" onclick="showTab('perfil', event)" class="tab-btn bg-metal-dark text-white border-2 border-metal-border px-4 py-2 rounded-lg text-lg md:text-xl hover:border-metal-red transition-all">
-                🧞‍♂️ PERFIL
-            </button>
-            <button id="btn-leaderboard" onclick="showTab('leaderboard', event)" class="tab-btn bg-metal-dark text-white border-2 border-metal-border px-4 py-2 rounded-lg text-lg md:text-xl hover:border-metal-red transition-all">
-                🏆 RANKING
-            </button>
-            <button id="btn-passados" onclick="showTab('passados', event)" class="tab-btn bg-metal-dark text-white border-2 border-metal-border px-4 py-2 rounded-lg text-lg md:text-xl hover:border-metal-red transition-all">
-                📜 HISTÓRICO
-            </button>
-        </div>
+        <button id="btn-leaderboard" onclick="showTab('leaderboard', event)" 
+                class="tab-btn bg-metal-dark text-metal-text border-2 border-metal-border hover:bg-metal-red hover:text-white px-6 py-3 rounded-lg text-lg md:text-xl transition-all font-bold uppercase tracking-widest shadow-lg focus:outline-none">
+            RANKING
+        </button>
+        
+        <button id="btn-passados" onclick="showTab('passados', event)" 
+                class="tab-btn bg-metal-dark text-metal-text border-2 border-metal-border hover:bg-metal-red hover:text-white px-6 py-3 rounded-lg text-lg md:text-xl transition-all font-bold uppercase tracking-widest shadow-lg focus:outline-none">
+            HISTÓRICO
+        </button>
+    </div>
 
-        <div class="flex-1 relative overflow-hidden bg-metal-black/50 rounded-xl">
+        <div class="flex-1 relative overflow-hidden bg-metal-card/80 backdrop-blur-md rounded-xl border border-metal-border shadow-2xl transition-colors duration-500">
             
-            <div id="tab-perfil" class="tab-content block h-full flex flex-col justify-center items-center animate-fade-in">
-                <h1 id="p-nome" class="text-4xl md:text-6xl font-bold mb-2 tracking-widest text-white drop-shadow-md">...</h1>
-                
-                <img id="p-rank-img" src="" alt="Rank" class="h-[550px] md:h-[550px] object-contain my-4">
-                
-                <h2 id="p-rank-nome" class="text-3xl md:text-5xl text-metal-red italic mb-6">...</h2>
-                
-                <div class="w-full max-w-xl bg-metal-dark rounded-full h-5 mb-3 border border-metal-border overflow-hidden relative shadow-inner">
-                    <div id="xp-bar" class="bg-metal-red h-full transition-all duration-1000 ease-out shadow-[0_0_15px_#ff0000]" style="width: 0%"></div>
+            <div id="tab-perfil" class="tab-content block h-full flex flex-col justify-center items-center animate-fade-in px-4">
+                <h1 id="p-nome" class="text-4xl md:text-6xl font-bold mb-2 tracking-widest text-metal-text drop-shadow-md text-center">...</h1>
+                <img id="p-rank-img" src="" alt="Rank" class="rank-img-display h-[350px] object-contain my-4 transition-all duration-500 drop-shadow-lg">
+                <h2 id="p-rank-nome" class="text-3xl md:text-5xl text-metal-red italic mb-6 font-bold tracking-widest">...</h2>
+                <div class="w-full max-w-xl bg-metal-black rounded-full h-5 mb-3 border border-metal-border overflow-hidden relative shadow-inner">
+                    <div id="xp-bar" class="bg-metal-red h-full transition-all duration-1000 ease-out" style="width: 0%"></div>
                 </div>
-                <p id="p-xp-texto" class="text-gray-400 text-lg md:text-xl tracking-wide">...</p>
+                <p id="p-xp-texto" class="text-metal-text opacity-70 text-lg md:text-xl tracking-wide font-bold">...</p>
             </div>
 
             <div id="tab-leaderboard" class="tab-content hidden h-full overflow-y-auto pr-2 custom-scrollbar pb-10">
-                <div id="leaderboard-list" class="max-w-4xl mx-auto space-y-3 pt-4">
-                    </div>
+                <div id="leaderboard-list" class="max-w-4xl mx-auto space-y-3 pt-4 px-2"></div>
             </div>
 
             <div id="tab-passados" class="tab-content hidden h-full overflow-y-auto pr-2 custom-scrollbar pb-10">
-                <div class="flex flex-col md:flex-row justify-center gap-4 mb-8 bg-metal-card p-4 rounded-xl max-w-3xl mx-auto border border-metal-border mt-4">
-                    <select id="sel-ano" class="bg-metal-dark text-white border border-metal-border p-2 rounded text-lg focus:outline-none cursor-pointer"></select>
-                    <select id="sel-mes" class="bg-metal-dark text-white border border-metal-border p-2 rounded text-lg focus:outline-none cursor-pointer"></select>
-                    <button onclick="buscarHistorico()" class="bg-metal-border hover:bg-metal-red text-white px-8 py-2 rounded text-lg transition-colors font-bold">
+                <div class="flex flex-col md:flex-row justify-center gap-4 mb-8 bg-metal-black p-4 rounded-xl max-w-3xl mx-auto border border-metal-border mt-4 transition-colors duration-500">
+                    
+                    <select id="sel-ano" class="bg-metal-card text-metal-text border border-metal-border p-2 rounded text-lg focus:outline-none cursor-pointer shadow-lg"></select>
+                    <select id="sel-mes" class="bg-metal-card text-metal-text border border-metal-border p-2 rounded text-lg focus:outline-none cursor-pointer shadow-lg"></select>
+                    
+                    <button onclick="buscarHistorico()" 
+                            class="bg-metal-dark border border-metal-border text-metal-text hover:text-white hover:bg-metal-red px-8 py-2 rounded text-lg transition-colors font-bold uppercase tracking-widest shadow-lg focus:outline-none">
                         CONSULTAR
                     </button>
                 </div>
-                <div id="historico-list" class="max-w-4xl mx-auto space-y-3">
-                    </div>
+                <div id="historico-list" class="max-w-4xl mx-auto space-y-3 px-2"></div>
             </div>
-
         </div>
     </div>
-
     <script src="/static/js/script.js"></script>
 </body>
 </html>

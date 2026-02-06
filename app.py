@@ -3,16 +3,13 @@ import pyodbc
 from datetime import datetime
 
 # ==============================================================================
-#  CONFIGURAÇÕES DE DESENVOLVIMENTO
+#   CONFIGURAÇÕES
 # ==============================================================================
 
-# SE TRUE: Usa dados falsos (rápido, não conecta no banco, ideal para testar layout)
-# SE FALSE: Conecta no banco da empresa (lento, dados reais)
 MODO_OFFLINE = True  
 
 app = Flask(__name__)
 
-# Configurações do Banco Real
 DADOS_CONEXAO = (
     "Driver={ODBC Driver 17 for SQL Server};"
     "Server=FAC-DB53.facta.com.br;"
@@ -20,7 +17,7 @@ DADOS_CONEXAO = (
     "Trusted_Connection=yes;"
     "ApplicationIntent=ReadOnly;"
 )
-IDS_EQUIPE = "20269, 19515, 18676, 17979, 13424, 16329, 8176, 9349, 15916, 20188, 15711, 19321, 19652, 16786, 11496"
+IDS_EQUIPE = "20269, 19515, 18676, 13424, 16329, 8176, 16786, 11496, 15166"
 
 VIDEOS_RANK = {
     10: "ironVid", 15: "bronzeVid", 35: "goldVid", 70: "diamondVid",
@@ -29,11 +26,12 @@ VIDEOS_RANK = {
 }
 
 # ==============================================================================
-#  DADOS FALSOS (MOCK) - Para testar sem banco
+#   MOCK DATA (Para testes sem banco)
 # ==============================================================================
 MOCK_PERFIL = {
     "nome": "Vitor supremo",
-    "total": 999999990,  # Mude aqui para testar diferentes vídeos (ex: 10, 90, 300)
+    "cargo": "ANALISTA DE SISTEMAS SR", # Exemplo de cargo real
+    "total": 350,  
     "meta": 350
 }
 
@@ -46,7 +44,7 @@ MOCK_LEADERBOARD = [
 ]
 
 # ==============================================================================
-#  LÓGICA
+#   LÓGICA
 # ==============================================================================
 
 def get_db_connection():
@@ -70,30 +68,47 @@ def index():
 
 @app.route('/api/perfil/<int:user_id>')
 def get_perfil(user_id):
-    # --- MODO OFFLINE ---
     if MODO_OFFLINE:
         nome = MOCK_PERFIL["nome"]
+        cargo = MOCK_PERFIL["cargo"]
         total = MOCK_PERFIL["total"]
         elo, meta = calcular_elo_e_meta(total)
         return jsonify({
-            "nome": nome, "total": total, "meta": meta, "elo": elo,
+            "nome": nome, "cargo": cargo, "total": total, "meta": meta, "elo": elo,
             "video": VIDEOS_RANK.get(total, None)
         })
 
-    # --- MODO ONLINE (BANCO REAL) ---
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        query = f"SELECT F.NOME, COUNT(PS.CODIGO) FROM FL_FUNCIONARIO F LEFT JOIN PORTAL_SOLICITACAO PS ON F.codigo = PS.codResponsavel AND PS.codStatus = 3 AND PS.data >= DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()), 0) WHERE F.codigo = {user_id} GROUP BY F.NOME"
+        
+        # --- QUERY CORRIGIDA COM JOIN NA TABELA DE CARGOS ---
+        query = f"""
+            SELECT 
+                F.NOME, 
+                FC.NOME,  -- Nome do Cargo vindo da tabela FL_CARGO
+                COUNT(PS.CODIGO) 
+            FROM FL_FUNCIONARIO F 
+            LEFT JOIN FL_CARGO FC ON F.CARGO = FC.CODIGO -- Join pelo código do cargo
+            LEFT JOIN PORTAL_SOLICITACAO PS ON F.codigo = PS.codResponsavel 
+                AND PS.codStatus = 3 
+                AND PS.data >= DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()), 0) 
+            WHERE F.codigo = {user_id} 
+            GROUP BY F.NOME, FC.NOME
+        """
         cursor.execute(query)
         res = cursor.fetchone()
         conn.close()
 
         if res:
-            nome, total = res[0], res[1]
+            nome = res[0]
+            # Se o cargo vier nulo do banco, coloca um padrão
+            cargo = res[1] if res[1] else "Colaborador" 
+            total = res[2]
             elo, meta = calcular_elo_e_meta(total)
+            
             return jsonify({
-                "nome": nome, "total": total, "meta": meta, "elo": elo,
+                "nome": nome, "cargo": cargo, "total": total, "meta": meta, "elo": elo,
                 "video": VIDEOS_RANK.get(total, None)
             })
         return jsonify({"error": "Usuário não encontrado"}), 404
@@ -103,15 +118,12 @@ def get_perfil(user_id):
 @app.route('/api/leaderboard')
 def get_leaderboard():
     lista_final = []
-
-    # --- MODO OFFLINE ---
     if MODO_OFFLINE:
         for item in MOCK_LEADERBOARD:
             elo, _ = calcular_elo_e_meta(item["pontos"])
             lista_final.append({"nome": item["nome"], "pontos": item["pontos"], "elo": elo})
         return jsonify(lista_final)
 
-    # --- MODO ONLINE (BANCO REAL) ---
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -119,32 +131,23 @@ def get_leaderboard():
         cursor.execute(query)
         rows = cursor.fetchall()
         conn.close()
-
         for row in rows:
             elo, _ = calcular_elo_e_meta(row[1])
             lista_final.append({"nome": row[0], "pontos": row[1], "elo": elo})
-        
         return jsonify(lista_final)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/historico')
 def get_historico():
-    # --- MODO OFFLINE ---
     if MODO_OFFLINE:
-        # Retorna dados falsos aleatórios só para ver a tela funcionando
-        mock_hist = [
-            {"nome": "LENDA DO PASSADO", "pontos": 300},
-            {"nome": "ANTIGO CAMPEÃO", "pontos": 250},
-            {"nome": "VETERANO", "pontos": 180}
-        ]
+        mock_hist = [{"nome": "LENDA PASSADA", "pontos": 300}, {"nome": "ANTIGO CAMPEÃO", "pontos": 250}, {"nome": "VETERANO", "pontos": 180}]
         lista = []
         for item in mock_hist:
             elo, _ = calcular_elo_e_meta(item["pontos"])
             lista.append({"nome": item["nome"], "pontos": item["pontos"], "elo": elo})
         return jsonify(lista)
 
-    # --- MODO ONLINE (BANCO REAL) ---
     ano = request.args.get('ano')
     mes = request.args.get('mes')
     if not ano or not mes: return jsonify({"error": "Faltam parâmetros"}), 400
@@ -152,11 +155,10 @@ def get_historico():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        query = f"SELECT TOP 3 F.NOME, COUNT(PS.CODIGO) FROM FL_FUNCIONARIO F JOIN PORTAL_SOLICITACAO PS ON F.codigo = PS.codResponsavel WHERE PS.codStatus = 3 AND F.codigo IN ({IDS_EQUIPE}) AND YEAR(PS.data) = ? AND MONTH(PS.data) = ? GROUP BY F.NOME ORDER BY 2 DESC"
+        query = f"SELECT F.NOME, COUNT(PS.CODIGO) FROM FL_FUNCIONARIO F JOIN PORTAL_SOLICITACAO PS ON F.codigo = PS.codResponsavel WHERE PS.codStatus = 3 AND F.codigo IN ({IDS_EQUIPE}) AND YEAR(PS.data) = ? AND MONTH(PS.data) = ? GROUP BY F.NOME ORDER BY 2 DESC"
         cursor.execute(query, (ano, mes))
         rows = cursor.fetchall()
         conn.close()
-
         lista = []
         for row in rows:
             elo, _ = calcular_elo_e_meta(row[1])
@@ -166,20 +168,15 @@ def get_historico():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    # SE O MODO OFFLINE ESTIVER ATIVO, USAMOS O LIVERELOAD
-    # ISSO ATUALIZA O NAVEGADOR AUTOMATICAMENTE
     if MODO_OFFLINE:
         try:
             from livereload import Server
             server = Server(app.wsgi_app)
-            print("--- MODO OFFLINE ATIVO: DADOS FALSOS + HOT RELOAD ---")
+            print("--- MODO OFFLINE ATIVO ---")
             server.watch('templates/*.html')
             server.watch('static/**/*.*')
             server.serve(host='127.0.0.1', port=5000)
         except ImportError:
-            print("ERRO: Instale o livereload com 'pip install livereload'")
             app.run(debug=True)
     else:
-        # SE FOR MODO ONLINE (PRODUÇÃO/TESTE REAL), RODA NORMAL
-        print("--- MODO ONLINE: CONECTADO AO BANCO REAL ---")
         app.run(host='0.0.0.0', port=5000, debug=False)
