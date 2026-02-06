@@ -20,7 +20,7 @@ const rankGlow = {
 document.addEventListener("DOMContentLoaded", () => {
     const temaSalvo = localStorage.getItem("aura_theme");
     
-    // PADRÃO CLARO: Só ativa Aura se estiver explicitamente salvo
+    // PADRÃO CLARO
     if (temaSalvo === 'aura') {
         document.body.classList.add('theme-aura');
     } else {
@@ -86,36 +86,25 @@ function fazerLogout() {
 
 // ================= LÓGICA DE ABAS =================
 function showTab(tabName, event) {
-    // 1. ESCONDE TUDO
     ['tab-perfil', 'tab-leaderboard', 'tab-passados'].forEach(id => {
         const el = document.getElementById(id);
         el.classList.add('hidden');
         el.classList.remove('block');
     });
 
-    // 2. MOSTRA O ALVO
     const target = document.getElementById('tab-' + tabName);
     target.classList.remove('hidden');
     target.classList.add('block');
 
-    // 3. ATUALIZA BOTÕES (RESET)
     document.querySelectorAll('.tab-btn').forEach(btn => {
-        // Remove estado Ativo
         btn.classList.remove('bg-metal-red', 'text-white');
-        
-        // Adiciona estado Inativo (Fundo escuro, texto padrão, borda padrão)
         btn.classList.add('bg-metal-dark', 'text-metal-text', 'hover:bg-metal-red', 'hover:text-white');
     });
 
-    // 4. DESTACA BOTÃO ATUAL
     if (event && event.currentTarget) {
         const btn = event.currentTarget;
-        
-        // Remove Inativo
         btn.classList.remove('bg-metal-dark', 'text-metal-text', 'hover:bg-metal-red', 'hover:text-white');
-        
-        // Adiciona Ativo (Fundo Vermelho, Texto Branco, E MANTÉM A BORDA VISÍVEL)
-        btn.classList.add('bg-metal-red', 'text-white', 'border-metal-border');
+        btn.classList.add('bg-metal-red', 'text-white', 'border-metal-border'); // Borda mantida
     }
 }
 
@@ -130,27 +119,22 @@ function atualizarVisualPerfil() {
     const tamanhoMenor = ['text-xl', 'md:text-3xl'];   // Para o Cargo (Claro)
 
     if (isAura) {
-        // --- MODO AURA (ELO) ---
+        // MODO AURA (ELO)
         rankElement.innerText = dadosGlobaisPerfil.elo.toUpperCase();
-        
-        // 1. Cor e Estilo: Vermelho e Itálico
         rankElement.classList.add('text-metal-red', 'italic');
         rankElement.classList.remove('text-gray-600', 'not-italic', 'text-metal-text');
         
-        // 2. Tamanho: Grande
         rankElement.classList.remove(...tamanhoMenor);
         rankElement.classList.add(...tamanhoGrande);
 
     } else {
-        // --- MODO CLARO (CARGO) ---
+        // MODO CLARO (CARGO)
         rankElement.innerText = dadosGlobaisPerfil.cargo.toUpperCase();
         
-        // 1. Cor e Estilo: Cinza Escuro e Sem Itálico
-        // 'text-gray-600' é um cinza escuro suave, 'text-gray-800' seria quase preto.
+        // Cor cinza escuro e menor
         rankElement.classList.remove('text-metal-red', 'italic', 'text-metal-text');
         rankElement.classList.add('text-gray-600', 'not-italic');
         
-        // 2. Tamanho: Um pouco menor
         rankElement.classList.remove(...tamanhoGrande);
         rankElement.classList.add(...tamanhoMenor);
     }
@@ -201,7 +185,6 @@ async function atualizarDados() {
         container.innerHTML = '';
 
         lista.forEach((item, index) => {
-            // PADRÃO DE CORES E BORDAS DO RANKING ATUAL
             let corPos = 'text-metal-text'; 
             let borderClass = 'border-metal-border';
 
@@ -214,17 +197,7 @@ async function atualizarDados() {
                 <div class="text-metal-red font-metal text-3xl min-w-[150px] text-right">
                     ${item.pontos} <span class="points-label"></span>
                 </div>
-<<<<<<< HEAD
-                <img src="/static/imgs/${item.elo}.png" class="rank-img-display h-[6.30rem] w-[11.30rem] object-contain mx-2 ${rankGlow[item.elo] || ''}">
-=======
-                <div class="text-metal-red font-metal text-3xl min-w-[140px] text-right">
-                    ${item.pontos} Aura Points
-                </div>
-                <img 
-                    src="/static/imgs/${item.elo}.png" 
-                    class="h-[7.5rem] w-[7.5rem] object-contain mx-2 ${rankGlow[item.elo] || ''}"
-                >
->>>>>>> 037b54f658c2aa5d565a4df20d8c517b590bbac5
+                <img src="/static/imgs/${item.elo}.png" class="rank-img-display h-[80px] w-[80px] object-contain mx-2 ${rankGlow[item.elo] || ''}">
             `;
             container.appendChild(div);
         });
@@ -268,13 +241,9 @@ async function buscarHistorico() {
         }
 
         lista.forEach((item, index) => {
-            // --- CORREÇÃO AQUI ---
-            // Antes usava 'text-metal-gold', etc. 
-            // Agora usa 'text-metal-text' para acompanhar o tema (Preto ou Branco).
             let corPos = 'text-metal-text'; 
 
             const div = document.createElement('div');
-            // Mantém a borda padrão 'border-metal-border'
             div.className = `bg-metal-dark border border-metal-border p-4 rounded-xl flex items-center justify-between shadow-lg`;
             
             div.innerHTML = `
@@ -283,17 +252,7 @@ async function buscarHistorico() {
                 <div class="text-metal-red font-metal text-3xl min-w-[150px] text-right">
                     ${item.pontos} <span class="points-label"></span>
                 </div>
-<<<<<<< HEAD
-                <img src="/static/imgs/${item.elo}.png" class="rank-img-display h-[6.30rem] w-[11.30rem] object-contain mx-2 ${rankGlow[item.elo] || ''}">
-=======
-                <div class="text-metal-red font-metal text-3xl min-w-[140px] text-right">
-                    ${item.pontos} Aura Points
-                </div>
-                <img 
-                    src="/static/imgs/${item.elo}.png" 
-                    class="h-[11.25rem] w-[11.25rem] object-contain mx-2 ${rankGlow[item.elo] || ''}"
-                >
->>>>>>> 037b54f658c2aa5d565a4df20d8c517b590bbac5
+                <img src="/static/imgs/${item.elo}.png" class="rank-img-display h-[80px] w-[80px] object-contain mx-2 ${rankGlow[item.elo] || ''}">
             `;
             container.appendChild(div);
         });

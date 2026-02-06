@@ -6,13 +6,7 @@ from datetime import datetime
 #   CONFIGURAÇÕES
 # ==============================================================================
 
-<<<<<<< HEAD
-MODO_OFFLINE = True  
-=======
-# SE TRUE: Usa dados falsos (rápido, não conecta no banco, ideal para testar layout)
-# SE FALSE: Conecta no banco da empresa (lento, dados reais)
 MODO_OFFLINE = False  
->>>>>>> 037b54f658c2aa5d565a4df20d8c517b590bbac5
 
 app = Flask(__name__)
 
@@ -32,11 +26,11 @@ VIDEOS_RANK = {
 }
 
 # ==============================================================================
-#   MOCK DATA (Para testes sem banco)
+#   MOCK DATA
 # ==============================================================================
 MOCK_PERFIL = {
     "nome": "Vitor supremo",
-    "cargo": "ANALISTA DE SISTEMAS SR", # Exemplo de cargo real
+    "cargo": "ANALISTA DE SISTEMAS SR",
     "total": 350,  
     "meta": 350
 }
@@ -87,15 +81,10 @@ def get_perfil(user_id):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        
-        # --- QUERY CORRIGIDA COM JOIN NA TABELA DE CARGOS ---
         query = f"""
-            SELECT 
-                F.NOME, 
-                FC.NOME,  -- Nome do Cargo vindo da tabela FL_CARGO
-                COUNT(PS.CODIGO) 
+            SELECT F.NOME, FC.NOME, COUNT(PS.CODIGO) 
             FROM FL_FUNCIONARIO F 
-            LEFT JOIN FL_CARGO FC ON F.CARGO = FC.CODIGO -- Join pelo código do cargo
+            LEFT JOIN FL_CARGO FC ON F.CARGO = FC.CODIGO 
             LEFT JOIN PORTAL_SOLICITACAO PS ON F.codigo = PS.codResponsavel 
                 AND PS.codStatus = 3 
                 AND PS.data >= DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()), 0) 
@@ -108,11 +97,9 @@ def get_perfil(user_id):
 
         if res:
             nome = res[0]
-            # Se o cargo vier nulo do banco, coloca um padrão
             cargo = res[1] if res[1] else "Colaborador" 
             total = res[2]
             elo, meta = calcular_elo_e_meta(total)
-            
             return jsonify({
                 "nome": nome, "cargo": cargo, "total": total, "meta": meta, "elo": elo,
                 "video": VIDEOS_RANK.get(total, None)
@@ -178,9 +165,6 @@ if __name__ == '__main__':
         try:
             from livereload import Server
             server = Server(app.wsgi_app)
-            print("--- MODO OFFLINE ATIVO ---")
-            server.watch('templates/*.html')
-            server.watch('static/**/*.*')
             server.serve(host='127.0.0.1', port=5000)
         except ImportError:
             app.run(debug=True)

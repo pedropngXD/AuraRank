@@ -47,39 +47,20 @@ body {
 /* Remover Setas do Input Number */
 input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-input[type=number] { -moz-appearance: textfield; }
 
-/* ==========================================================================
-   LÓGICA DE EXIBIÇÃO POR TEMA
-   ========================================================================== */
+/* LÓGICA DE EXIBIÇÃO POR TEMA */
+.rank-img-display { display: none; }
+body.theme-aura .rank-img-display { display: block; }
 
-/* 1. IMAGENS DO RANK */
-/* Tema Claro: Imagens somem */
-.rank-img-display {
-    display: none;
-}
-/* Tema Aura: Imagens aparecem */
-body.theme-aura .rank-img-display {
-    display: block;
-}
-
-/* 2. TEXTO DINÂMICO (Label) */
-/* Tema Claro: Escreve "Chamados" */
 .points-label::after {
     content: " Chamados"; 
     font-size: 0.7em;
     opacity: 0.8;
     text-transform: uppercase;
 }
-/* Tema Aura: Escreve "Aura Points" */
-body.theme-aura .points-label::after {
-    content: " Aura Points";
-}
+body.theme-aura .points-label::after { content: " Aura Points"; }
 
-/* ... Mantenha o CSS anterior e adicione isso ao final ... */
-
-/* AJUSTE: Botões das Abas (Perfil, Ranking, Histórico) */
-/* No tema Aura, força a borda a ser Vermelha (accent-color) */
+/* AJUSTE: Botões das Abas no Tema Aura */
 body.theme-aura .tab-btn {
     border-color: var(--accent-color) !important;
 }
