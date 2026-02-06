@@ -214,7 +214,17 @@ async function atualizarDados() {
                 <div class="text-metal-red font-metal text-3xl min-w-[150px] text-right">
                     ${item.pontos} <span class="points-label"></span>
                 </div>
+<<<<<<< HEAD
                 <img src="/static/imgs/${item.elo}.png" class="rank-img-display h-[6.30rem] w-[11.30rem] object-contain mx-2 ${rankGlow[item.elo] || ''}">
+=======
+                <div class="text-metal-red font-metal text-3xl min-w-[140px] text-right">
+                    ${item.pontos} Aura Points
+                </div>
+                <img 
+                    src="/static/imgs/${item.elo}.png" 
+                    class="h-[7.5rem] w-[7.5rem] object-contain mx-2 ${rankGlow[item.elo] || ''}"
+                >
+>>>>>>> 037b54f658c2aa5d565a4df20d8c517b590bbac5
             `;
             container.appendChild(div);
         });
@@ -273,7 +283,17 @@ async function buscarHistorico() {
                 <div class="text-metal-red font-metal text-3xl min-w-[150px] text-right">
                     ${item.pontos} <span class="points-label"></span>
                 </div>
+<<<<<<< HEAD
                 <img src="/static/imgs/${item.elo}.png" class="rank-img-display h-[6.30rem] w-[11.30rem] object-contain mx-2 ${rankGlow[item.elo] || ''}">
+=======
+                <div class="text-metal-red font-metal text-3xl min-w-[140px] text-right">
+                    ${item.pontos} Aura Points
+                </div>
+                <img 
+                    src="/static/imgs/${item.elo}.png" 
+                    class="h-[11.25rem] w-[11.25rem] object-contain mx-2 ${rankGlow[item.elo] || ''}"
+                >
+>>>>>>> 037b54f658c2aa5d565a4df20d8c517b590bbac5
             `;
             container.appendChild(div);
         });

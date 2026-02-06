@@ -6,7 +6,13 @@ from datetime import datetime
 #   CONFIGURAÇÕES
 # ==============================================================================
 
+<<<<<<< HEAD
 MODO_OFFLINE = True  
+=======
+# SE TRUE: Usa dados falsos (rápido, não conecta no banco, ideal para testar layout)
+# SE FALSE: Conecta no banco da empresa (lento, dados reais)
+MODO_OFFLINE = False  
+>>>>>>> 037b54f658c2aa5d565a4df20d8c517b590bbac5
 
 app = Flask(__name__)
 
