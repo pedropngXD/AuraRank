@@ -131,7 +131,6 @@ function atualizarVisualPerfil() {
         // MODO CLARO (CARGO)
         rankElement.innerText = dadosGlobaisPerfil.cargo.toUpperCase();
         
-        // Cor cinza escuro e menor
         rankElement.classList.remove('text-metal-red', 'italic', 'text-metal-text');
         rankElement.classList.add('text-gray-600', 'not-italic');
         
@@ -155,6 +154,14 @@ async function atualizarDados() {
         atualizarVisualPerfil();
 
         document.getElementById('p-xp-texto').innerHTML = `${data.total} / ${data.meta} <span class="points-label"></span>`;
+
+        // --- LÓGICA DA TEMPORADA ---
+        const mesesNomes = ["JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO", "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"];
+        const mesAtual = new Date().getMonth();
+        const pTemporada = document.getElementById('p-temporada');
+        if(pTemporada) {
+            pTemporada.innerText = `TEMPORADA ${mesesNomes[mesAtual]}`;
+        }
 
         const rankImg = document.getElementById('p-rank-img');
         rankImg.src = `/static/imgs/${data.elo}.png`;
@@ -197,7 +204,7 @@ async function atualizarDados() {
                 <div class="text-metal-red font-metal text-3xl min-w-[150px] text-right">
                     ${item.pontos} <span class="points-label"></span>
                 </div>
-                <img src="/static/imgs/${item.elo}.png" class="rank-img-display h-[80px] w-[80px] object-contain mx-2 ${rankGlow[item.elo] || ''}">
+                <img src="/static/imgs/${item.elo}.png" class="rank-img-display h-[7.5rem] w-[7.5rem] object-contain mx-2 ${rankGlow[item.elo] || ''}">
             `;
             container.appendChild(div);
         });
@@ -252,7 +259,7 @@ async function buscarHistorico() {
                 <div class="text-metal-red font-metal text-3xl min-w-[150px] text-right">
                     ${item.pontos} <span class="points-label"></span>
                 </div>
-                <img src="/static/imgs/${item.elo}.png" class="rank-img-display h-[80px] w-[80px] object-contain mx-2 ${rankGlow[item.elo] || ''}">
+                <img src="/static/imgs/${item.elo}.png" class="rank-img-display h-[7.5rem] w-[7.5rem] object-contain mx-2 ${rankGlow[item.elo] || ''}">
             `;
             container.appendChild(div);
         });
