@@ -8,7 +8,7 @@ from datetime import datetime
 
 # SE TRUE: Usa dados falsos (rápido, não conecta no banco, ideal para testar layout)
 # SE FALSE: Conecta no banco da empresa (lento, dados reais)
-MODO_OFFLINE = True  
+MODO_OFFLINE = False  
 
 app = Flask(__name__)
 
@@ -20,7 +20,7 @@ DADOS_CONEXAO = (
     "Trusted_Connection=yes;"
     "ApplicationIntent=ReadOnly;"
 )
-IDS_EQUIPE = "20269, 19515, 18676, 17979, 13424, 16329, 8176, 9349, 15916, 20188, 15711, 19321, 19652, 16786, 11496"
+IDS_EQUIPE = "20269, 19515, 18676, 17979, 13424, 16329, 8176, 9349, 15916, 20188, 15711, 19321, 19652, 16786, 11496, 8031"
 
 VIDEOS_RANK = {
     10: "ironVid", 15: "bronzeVid", 35: "goldVid", 70: "diamondVid",

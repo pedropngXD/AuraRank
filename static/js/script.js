@@ -137,7 +137,7 @@ async function atualizarDados() {
                 </div>
                 <img 
                     src="/static/imgs/${item.elo}.png" 
-                    class="h-[167px] w-[167px] object-contain mx-2 ${rankGlow[item.elo] || ''}"
+                    class="h-[7.5rem] w-[7.5rem] object-contain mx-2 ${rankGlow[item.elo] || ''}"
                 >
             `;
             container.appendChild(div);
@@ -203,7 +203,7 @@ async function buscarHistorico() {
                 </div>
                 <img 
                     src="/static/imgs/${item.elo}.png" 
-                    class="h-[180px] w-[180px] object-contain mx-2 ${rankGlow[item.elo] || ''}"
+                    class="h-[11.25rem] w-[11.25rem] object-contain mx-2 ${rankGlow[item.elo] || ''}"
                 >
             `;
             container.appendChild(div);
