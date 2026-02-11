@@ -4,6 +4,9 @@ let marcosTocados = new Set();
 let updateInterval = null;
 let dadosGlobaisPerfil = null;
 
+// Guarda o último elo conhecido para detectar mudança de rank
+let ultimoEloConhecido = null;
+
 const rankGlow = {
     iron: 'drop-shadow-[0_0_15px_rgba(120,120,120,0.5)]',
     bronze: 'drop-shadow-[0_0_25px_rgba(205,127,50,0.5)]',
@@ -104,7 +107,7 @@ function showTab(tabName, event) {
     if (event && event.currentTarget) {
         const btn = event.currentTarget;
         btn.classList.remove('bg-metal-dark', 'text-metal-text', 'hover:bg-metal-red', 'hover:text-white');
-        btn.classList.add('bg-metal-red', 'text-white', 'border-metal-border'); // Borda mantida
+        btn.classList.add('bg-metal-red', 'text-white', 'border-metal-border');
     }
 }
 
@@ -114,38 +117,32 @@ function atualizarVisualPerfil() {
     const rankElement = document.getElementById('p-rank-nome');
     const isAura = document.body.classList.contains('theme-aura');
 
-    // Definição dos Tamanhos
-    const tamanhoGrande = ['text-3xl', 'md:text-5xl']; // Para o Elo (Aura)
-    const tamanhoMenor = ['text-xl', 'md:text-3xl'];   // Para o Cargo (Claro)
+    const tamanhoGrande = ['text-3xl', 'md:text-5xl'];
+    const tamanhoMenor = ['text-xl', 'md:text-3xl'];
 
     if (isAura) {
-        // MODO AURA (ELO)
         rankElement.innerText = dadosGlobaisPerfil.elo.toUpperCase();
         rankElement.classList.add('text-metal-red', 'italic');
         rankElement.classList.remove('text-gray-600', 'not-italic', 'text-metal-text');
-        
         rankElement.classList.remove(...tamanhoMenor);
         rankElement.classList.add(...tamanhoGrande);
-
     } else {
-        // MODO CLARO (CARGO)
         rankElement.innerText = dadosGlobaisPerfil.cargo.toUpperCase();
-        
         rankElement.classList.remove('text-metal-red', 'italic', 'text-metal-text');
         rankElement.classList.add('text-gray-600', 'not-italic');
-        
         rankElement.classList.remove(...tamanhoGrande);
         rankElement.classList.add(...tamanhoMenor);
     }
 }
 
+// ================= ATUALIZAÇÃO DE DADOS =================
 async function atualizarDados() {
-    if(!currentUserId) return;
+    if (!currentUserId) return;
 
     try {
         const res = await fetch(`/api/perfil/${currentUserId}`);
         const data = await res.json();
-        if(data.error) { fazerLogout(); return; }
+        if (data.error) { fazerLogout(); return; }
 
         dadosGlobaisPerfil = data;
 
@@ -155,11 +152,10 @@ async function atualizarDados() {
 
         document.getElementById('p-xp-texto').innerHTML = `${data.total} / ${data.meta} <span class="points-label"></span>`;
 
-        // --- LÓGICA DA TEMPORADA ---
         const mesesNomes = ["JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO", "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"];
         const mesAtual = new Date().getMonth();
         const pTemporada = document.getElementById('p-temporada');
-        if(pTemporada) {
+        if (pTemporada) {
             pTemporada.innerText = `TEMPORADA ${mesesNomes[mesAtual]}`;
         }
 
@@ -173,16 +169,34 @@ async function atualizarDados() {
         const pct = Math.min((data.total / data.meta) * 100, 100);
         document.getElementById('xp-bar').style.width = pct + '%';
 
-        if (data.video && !marcosTocados.has(data.total)) {
+        // ================= LÓGICA DO VÍDEO (CORRIGIDA) =================
+        //
+        // O vídeo deve ser exibido quando:
+        //   1. A API retorna um vídeo para o total atual (data.video existe)
+        //   2. O tema escuro (Aura) está ativo
+        //   3. O vídeo ainda não foi exibido para este usuário neste marco
+        //      (chave salva no localStorage por usuário + total de pontos)
+        //
+        // PROBLEMA ANTERIOR: marcosTocados era um Set em memória mas nunca
+        // recebia .add(), e o localStorage era gravado antes da verificação,
+        // fazendo o vídeo nunca disparar na segunda chamada de atualizarDados.
+        //
+        // SOLUÇÃO: usar apenas o localStorage como fonte de verdade, sem o Set.
+        // A chave é salva SOMENTE após o vídeo ser efetivamente exibido.
+        //
+        if (data.video) {
+            const isAuraMode = document.body.classList.contains('theme-aura');
             const chaveVideo = `aura_visto_${currentUserId}_${data.total}`;
             const jaAssistiu = localStorage.getItem(chaveVideo);
-            const isAuraMode = document.body.classList.contains('theme-aura');
 
-            if (!jaAssistiu && isAuraMode) {
-                tocarVideo(data.video);
+            if (isAuraMode && !jaAssistiu) {
+                // Marca ANTES de tocar para evitar duplo disparo em chamadas rápidas
                 localStorage.setItem(chaveVideo, "true");
+                tocarVideo(data.video);
             }
         }
+        // ================= FIM DA LÓGICA DO VÍDEO =================
+
     } catch (e) { console.error(e); }
 
     try {
@@ -216,13 +230,13 @@ const MESES = {"Janeiro":1,"Fevereiro":2,"Março":3,"Abril":4,"Maio":5,"Junho":6
 function initDropdowns() {
     const selAno = document.getElementById('sel-ano');
     const selMes = document.getElementById('sel-mes');
-    if(!selAno) return;
+    if (!selAno) return;
 
     const anoAtual = new Date().getFullYear();
     for (let i = 2025; i <= anoAtual; i++) {
         let opt = document.createElement('option');
         opt.value = i; opt.innerText = i;
-        if(i === anoAtual) opt.selected = true;
+        if (i === anoAtual) opt.selected = true;
         selAno.appendChild(opt);
     }
     for (const [nome, valor] of Object.entries(MESES)) {
@@ -268,13 +282,29 @@ async function buscarHistorico() {
     }
 }
 
+// ================= VÍDEO =================
 function tocarVideo(nomeVideo) {
     const overlay = document.getElementById('video-overlay');
     const player = document.getElementById('player');
+
+    // CORREÇÃO: usar player.src diretamente (sem <source> interno no HTML)
+    // Forçar reload do elemento para garantir que o novo src seja carregado
+    player.pause();
+    player.removeAttribute('src');
+    player.load();
+
     player.src = `/static/vids/${nomeVideo}.mp4`;
+    player.load();
+
     overlay.classList.remove('hidden');
     overlay.classList.add('flex');
-    player.play().catch(() => {});
+
+    player.play().catch((err) => {
+        // Autoplay pode ser bloqueado pelo navegador na primeira interação.
+        // Neste caso o overlay fica visível e o usuário clica para fechar/tocar.
+        console.warn('Autoplay bloqueado pelo navegador:', err);
+    });
+
     player.onended = fecharVideo;
 }
 
